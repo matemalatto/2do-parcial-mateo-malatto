@@ -6,10 +6,9 @@ from ranking import mostrar_ranking
 import sqlite3
 from colores import *
 from pygame import mixer
-import re
 
 pygame.init()
-pygame.mixer.init()
+mixer.init()
 
 # Seteo el largo y ancho de la ventana y pongo la imagen del fondo
 pantalla = pygame.display.set_mode((1000, 500))
@@ -34,6 +33,7 @@ rect_boton_puntos.x = 600
 
 #musica
 audio_fondo = pygame.mixer.Sound("audio_ruta.mp3")
+audio_fondo.set_volume(0.05)
 audio_mancha = pygame.mixer.Sound("audio_mancha.mp3")
 audio_choque = pygame.mixer.Sound("audio_choque.mp3")
 
@@ -68,11 +68,12 @@ flag_texto = False
 fuente_nombre = pygame.font.Font(None, 36)
 
 # Creo el rectángulo del contador de segundos
-tiempo_inicial = pygame.time.get_ticks()
 fuente_contador = pygame.font.Font(None, 36)
 contador_rect = pygame.Rect(pantalla.get_width() - 150, 10, 140, 40)
 fuente_velocimetro = pygame.font.Font(None, 36)
 velocimetro_rect = pygame.Rect(0, 20, 10, 140)
+
+flag_ranking = True
 
 
 # Creo el programa principal
@@ -107,6 +108,7 @@ while flag_game:
 
                 if rect_boton.collidepoint(pygame.mouse.get_pos()):
                     pantalla.blit(background_auto_principal, (0, 0))
+                    tiempo_inicial = pygame.time.get_ticks()
                     opcion = 1
                 elif rect_boton_puntos.collidepoint(pygame.mouse.get_pos()):
                     opcion = 2
@@ -130,48 +132,25 @@ while flag_game:
         rect_main_menu = texto_main_menu.get_rect(center=(800, 200))
         pygame.draw.rect(pantalla, (225, 225, 255), rect_main_menu, border_radius=8)
         pantalla.blit(texto_main_menu, rect_main_menu)
+        mostrar_ranking(pantalla)
         pygame.display.flip()
 
         for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                    flag_game = False
             if evento.type == pygame.MOUSEBUTTONDOWN:
                 if rect_main_menu.collidepoint(pygame.mouse.get_pos()):
                     opcion = 0
-        with sqlite3.connect("ranking.db") as conexion:
-            try:
-                sentencia = '''CREATE TABLE IF NOT EXISTS ranking
-                    (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    nombre TEXT,
-                    tiempo INTEGER
-                    )
-                    '''
-                conexion.execute(sentencia)
-                print("Se creó la tabla ranking")
-            except sqlite3.OperationalError:
-                print("La tabla ranking ya existe")
-
-            try:
-                conexion.execute("INSERT INTO ranking (nombre, tiempo) VALUES (?, ?)", (nombre_ingresado, tiempo_actual // 1000))
-                conexion.commit()
-                print("Registro insertado correctamente")
-            except:
-                print("Error al insertar el registro")
-
-        while True:
-            for evento in pygame.event.get():
-                if evento.type == pygame.QUIT:
-                    flag_game = False
-            mostrar_ranking(pantalla)
-            pygame.display.flip()
 
     elif opcion == 1:
-        audio_fondo.play()
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 flag_game = False
         keys = pygame.key.get_pressed()
         # Mientras no se haya perdido
         if not game_over:
+            flag_ranking = True
+            audio_fondo.play()
             if keys[K_LEFT] and auto_principal.rect.left > 0:
                 auto_principal.rect.x -= auto_principal.velocidad
             if keys[K_RIGHT] and auto_principal.rect.right < pantalla.get_width():
@@ -217,9 +196,9 @@ while flag_game:
             auto_principal_mask = pygame.mask.from_surface(auto_principal.imagen)
             posiciones_man = (mancha.rect.x - auto_principal.rect.x, mancha.rect.y - auto_principal.rect.y)
             if auto_principal_mask.overlap(mancha_mask, posiciones_man):
-                audio_mancha.play()
                 game_over = False
                 auto_principal.velocidad = random.randint(1, 6)
+                audio_mancha.play()
 
             if segundos_transcurridos > 20:
                 for auto in autos_generados:
@@ -235,6 +214,29 @@ while flag_game:
             pantalla.blit(texto_velocimetro, velocimetro_rect)
 
         else:
+            if flag_ranking == True:
+                with sqlite3.connect("ranking.db") as conexion:
+                    try:
+                        sentencia = '''CREATE TABLE IF NOT EXISTS ranking
+                            (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            nombre TEXT,
+                            tiempo INTEGER
+                            )
+                            '''
+                        conexion.execute(sentencia)
+                        print("Se creó la tabla ranking")
+                    except sqlite3.OperationalError:
+                        print("La tabla ranking ya existe")
+
+                    try:
+                        conexion.execute("INSERT INTO ranking (nombre, tiempo) VALUES (?, ?)", (nombre_ingresado, segundos_transcurridos))
+                        conexion.commit()
+                        print("Registro insertado correctamente")
+                    except:
+                        print("Error al insertar el registro")
+                    flag_ranking = False
+
             if evento.type == pygame.QUIT:
                 flag_game = False
             # Mostrar cartel de Game Over
