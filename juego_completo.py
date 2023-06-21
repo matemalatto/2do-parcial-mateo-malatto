@@ -10,15 +10,15 @@ from pygame import mixer
 pygame.init()
 mixer.init()
 #---------------------------------------------------------------------------------------------------------------
-# Seteo el largo y ancho de la ventana y pongo la imagen del fondo
+# Seteo el largo y ancho de la ventana
 pantalla = pygame.display.set_mode((1000, 500))
 pygame.display.set_caption("Carrera")
 #Agrego a la pantalla principal el fondo y lo bliteo
-background_auto_principal = pygame.image.load("ruta1.png").convert()
-background_auto_principal = pygame.transform.scale(background_auto_principal, (1000, 500))
-pantalla.blit(background_auto_principal, (0, 0))
+fondo_juego = pygame.image.load("ruta1.png").convert()
+fondo_juego = pygame.transform.scale(fondo_juego, (1000, 500))
+pantalla.blit(fondo_juego, (0, 0))
 
-#Agrego las imagenes de los botones 
+#Defino las imagenes de los botones 
 imagen_jugar = pygame.image.load("boton_jugar.png")
 imagen_jugar = pygame.transform.scale(imagen_jugar,(200, 100))
 imagen_resume = pygame.image.load("boton_resume.png")
@@ -52,7 +52,7 @@ autos_generados = [
     Auto("auto_ambulancia.png", 4, 1100, (140, 120), 0, "abajo"),
     Auto("auto_taxi.png", 3, 1000, (120, 100), 0, "arriba"),
     Auto("auto_bondi.png", 3, 1400, (150, 250), 0, "arriba"),
-    Auto("auto_policia.png", 6, 1500, (100, 120), 0, "abajo"),
+    Auto("auto_policia.png", 6, 1400, (100, 120), 0, "abajo"),
     Auto("auto_ambulancia.png", 4, 2700, (140, 120), 0, "abajo"),
     Auto("auto_taxi.png", 3, 1700, (120, 100), 0, "arriba"),
     Auto("auto_bondi.png", 3, 2100, (150, 250), 0, "arriba")
@@ -61,7 +61,7 @@ autos_generados = [
 #---------------------------------------------------------------------------------------------------------------
 #Bandera de inicio del juego
 flag_game = True
-#Bandera que define en que parte del menu empieza el juego
+#Variable que define en que parte del menu empieza el juego
 opcion = 0
 #Bandera que define el estado de la partida
 game_over = False
@@ -91,7 +91,7 @@ velocimetro_rect = pygame.Rect(0, 20, 10, 140)
 while flag_game:
     #La opxion 0 es el menu principal
     if opcion == 0:
-        pantalla.blit(background_auto_principal, (0, 0))
+        pantalla.blit(fondo_juego, (0, 0))
         #Posiciono boton start
         start_x = 400
         start_y = 100 
@@ -125,7 +125,7 @@ while flag_game:
 
                 #Si el usuario presiona para jugaro ver el ranking
                 if rect_boton.collidepoint(pygame.mouse.get_pos()):
-                    pantalla.blit(background_auto_principal, (0, 0))
+                    pantalla.blit(fondo_juego, (0, 0))
                     tiempo_inicial = pygame.time.get_ticks()
                     opcion = 1
                 elif rect_boton_puntos.collidepoint(pygame.mouse.get_pos()):
@@ -149,7 +149,7 @@ while flag_game:
     #La opcion 2 es el ranking
     elif opcion == 2:
         #Dibujo en pantalla el boton del menu, y muestro el ranking
-        pantalla.blit(background_auto_principal, (0, 0))
+        pantalla.blit(fondo_juego, (0, 0))
         fuente_main_menu = pygame.font.Font(None, 32)
         texto_main_menu = fuente_main_menu.render("Main Menu", True, (0, 0, 0))
         rect_main_menu = texto_main_menu.get_rect(center=(800, 200))
@@ -193,7 +193,7 @@ while flag_game:
                 auto_principal.rect.y += auto_principal.velocidad
 
             #Muestra en pantalla los elementos de la superficie
-            pantalla.blit(background_auto_principal, (0, 0))
+            pantalla.blit(fondo_juego, (0, 0))
             pantalla.blit(mancha.imagen, mancha.rect)
             pantalla.blit(auto_principal.imagen, auto_principal.rect)
 
@@ -308,18 +308,16 @@ while flag_game:
             pygame.draw.rect(pantalla, (225, 225, 255), rect_main_menu, border_radius=8)
             pantalla.blit(texto_main_menu, rect_main_menu)
 
-
             #Depende que presione el usuario, juega de nuevo o vuelve al menu
             for evento in pygame.event.get():
                 if evento.type == pygame.MOUSEBUTTONDOWN or (evento.type == pygame.KEYDOWN and evento.key == pygame.K_RETURN):
                     if rect_main_menu.collidepoint(pygame.mouse.get_pos()):
                         imagen_jugar = imagen_resume
                         opcion = 0
-                        pantalla.blit(background_auto_principal, (0, 0))
+                        pantalla.blit(fondo_juego, (0, 0))
                     elif rect_try_again.collidepoint(pygame.mouse.get_pos()):
                         #Reinicio el juego estableciendo los valores de todo al inicial
                         game_over = False
-                        auto_principal = Auto("auto_principal.png", 3, 0, (110, 100), 0, None)
                         tiempo_inicial = pygame.time.get_ticks()
                         auto_principal.rect.x = 100
                         auto_principal.rect.y = 50
