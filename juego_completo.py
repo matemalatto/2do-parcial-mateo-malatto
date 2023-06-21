@@ -308,6 +308,7 @@ while flag_game:
             pygame.draw.rect(pantalla, (225, 225, 255), rect_main_menu, border_radius=8)
             pantalla.blit(texto_main_menu, rect_main_menu)
 
+
             #Depende que presione el usuario, juega de nuevo o vuelve al menu
             for evento in pygame.event.get():
                 if evento.type == pygame.MOUSEBUTTONDOWN or (evento.type == pygame.KEYDOWN and evento.key == pygame.K_RETURN):
