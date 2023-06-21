@@ -3,35 +3,31 @@ import pygame
 import colores
 
 def mostrar_ranking(pantalla):
-    # Establecer conexión a la base de datos
+    #Conecto a la base de datos
     conexion = sqlite3.connect("ranking.db")
     cursor = conexion.cursor()
 
-    # Ejecutar una consulta SQL para obtener los datos del ranking
+    #Obtengo los datos del juego
     cursor.execute("SELECT nombre, tiempo FROM ranking ORDER BY tiempo DESC LIMIT 5")
     resultados = cursor.fetchall()
 
-    # Cerrar la conexión a la base de datos
+    #Cierro la conexion a la base de datos
     conexion.close()
 
-    # Obtener dimensiones de la pantalla
-    pantalla_ancho, pantalla_alto = pantalla.get_size()
+    #Posicion puntajes
+    posicion_y = 150
 
-    # Calcular posición vertical inicial para el primer ranking
-    posicion_y = (pantalla_alto - (50 * len(resultados))) // 2
-
-    # Iterar sobre los resultados de la consulta SQL
+    #Itero para cada resultado dando los valores
     for i, resultado in enumerate(resultados):
         nombre = resultado[0]
         tiempo = resultado[1]
 
-        # Calcular posición horizontal para el texto del ranking
-        posicion_x = (pantalla_ancho - 200) // 2
+        posicion_x = 400
 
-        font_nombre = pygame.font.SysFont("Arial", 24)
-        texto_nombre = font_nombre.render(nombre, True, colores.GREEN2)
+        fuente_nombre = pygame.font.SysFont("Arial", 24)
+        texto_nombre = fuente_nombre.render(nombre, True, colores.GREEN2)
 
-        # Calcular posición vertical para el texto del ranking
+        #Pongo cada nombre con su puntaje
         texto_y = posicion_y + (i * 50)
 
         pantalla.blit(texto_nombre, (posicion_x, texto_y))
